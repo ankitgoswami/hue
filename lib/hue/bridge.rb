@@ -69,6 +69,16 @@ module Hue
       @lights = nil
       @groups = nil
       @scenes = nil
+      @sensors = nil
+    end
+
+    def sensors
+      @sensors ||= begin
+        json = JSON(Net::HTTP.get(URI.parse(base_url)))
+        json['sensors'].map do |key, value|
+          Sensor.new(@client, self, key, value)
+        end
+      end
     end
 
     def lights
