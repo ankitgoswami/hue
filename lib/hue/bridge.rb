@@ -76,7 +76,7 @@ module Hue
       @sensors ||= begin
         json = JSON(Net::HTTP.get(URI.parse(base_url)))
         json['sensors'].map do |key, value|
-          Sensor.new(@client, self, key, value)
+          SensorFactory.build_sensor(@client, self, key, value)
         end
       end
     end

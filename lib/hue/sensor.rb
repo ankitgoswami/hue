@@ -1,12 +1,11 @@
 module Hue
   class Sensor
     include TranslateKeys
-    include EditableState
 
     # Unique identification number.
     attr_reader :id
 
-    # Bridge the sensor is associated with
+    # Bridge the sensor is associated with.
     attr_reader :bridge
 
     # A unique, editable name given to the sensor.
@@ -24,49 +23,17 @@ module Hue
     # The name of the sensor manufacturer.
     attr_reader :manufacturer
 
+    # The state hash for the sensor.
     attr_reader :state
 
-    attr_reader :buttonevent
-
+    # Last updated time for the sensor.
     attr_reader :lastupdated
-
-    attr_reader :temperature
-
-    attr_reader :presence
-
-    attr_reader :lightlevel
-
-    attr_reader :dark
-
-    attr_reader :daylight
-
-    attr_reader :status
 
     def initialize(client, bridge, id, hash)
       @client = client
       @bridge = bridge
       @id = id
       unpack(hash)
-    end
-
-    def name=(new_name)
-      unless (1..32).include?(new_name.length)
-        raise InvalidValueForParameter, 'name must be between 1 and 32 characters.'
-      end
-
-      body = {
-        :name => new_name
-      }
-
-      uri = URI.parse(base_url)
-      http = Net::HTTP.new(uri.host)
-      response = http.request_put(uri.path, JSON.dump(body))
-      response = JSON(response.body).first
-      if response['success']
-        @name = new_name
-      # else
-        # TODO: Error
-      end
     end
 
     # Refresh the state of the sensor
@@ -83,23 +50,16 @@ module Hue
       :name => :name,
       :model => :modelid,
       :software_version => :swversion,
-      :manufacturer => :manufacturername
+      :manufacturer => :manufacturername,
     }
 
     STATE_KEYS_MAP = {
-      :buttonevent => :buttonevent,
       :lastupdated => :lastupdated,
-      :temperature => :temperature,
-      :presence => :presence,
-      :lightlevel => :lightlevel,
-      :dark => :dark,
-      :daylight => :daylight,
-      :status => :status,
     }
 
     def unpack(hash)
-      unpack_hash(hash, KEYS_MAP)
-      unpack_hash(@state, STATE_KEYS_MAP)
+      unpack_hash(hash, self.class::KEYS_MAP)
+      unpack_hash(@state, self.class::STATE_KEYS_MAP)
     end
 
     def base_url

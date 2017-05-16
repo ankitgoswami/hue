@@ -13,7 +13,7 @@ module Hue
     def unpack_hash(hash, map)
       map.each do |local_key, remote_key|
         value = hash[remote_key.to_s]
-        next unless value
+        next if value.nil?
         instance_variable_set("@#{local_key}", value)
       end
     end
